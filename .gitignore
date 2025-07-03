@@ -1,0 +1,14 @@
+/media/*
+/var/*
+/app/etc/local.xml
+/node_modules/
+/vendor/
+/pub/static/
+/generated/
+/*.log
+*.tar.gz
+*.zip
+.idea/
+.vscode/
+.DS_Store
+.env

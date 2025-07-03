@@ -1,0 +1,66 @@
+version: '3.7'
+
+services:
+  apache-web:
+    build: .
+    container_name: v1-apache-web
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - mysql-db
+    networks:
+      - magento
+
+  mysql-db:
+    image: mysql:5.7
+    container_name: v1-mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: magento
+      MYSQL_USER: magento
+      MYSQL_PASSWORD: magento
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - magento
+
+  redis-cache:
+    image: redis:alpine
+    container_name: v1-redis-cache
+    ports:
+      - "6379:6379"
+    networks:
+      - magento
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.23
+    container_name: v1-elasticsearch
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    networks:
+      - magento
+
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: v1-nginx-proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - apache-web
+    networks:
+      - magento
+
+volumes:
+  dbdata:
+
+networks:
+  magento:

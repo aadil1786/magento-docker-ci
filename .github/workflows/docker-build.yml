@@ -1,0 +1,25 @@
+name: Docker CI Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        run: docker build -t magento1-app .
+
+      - name: Run container for test
+        run: |
+          docker run -d -p 8080:80 magento1-app
+          sleep 10
+          curl -f http://localhost:8080 || (echo "App failed to start" && exit 1)
